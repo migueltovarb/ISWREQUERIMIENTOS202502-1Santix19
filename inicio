@@ -1,0 +1,99 @@
+import csv
+import os
+
+ARCHIVO = "contactos.csv"
+
+# Cargar contactos desde el archivo
+def cargar_contactos():
+    contactos = []
+    if os.path.exists(ARCHIVO):
+        with open(ARCHIVO, newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            contactos = list(reader)
+    return contactos
+
+# Guardar contactos en el archivo
+def guardar_contactos(contactos):
+    with open(ARCHIVO, "w", newline='', encoding='utf-8') as f:
+        campos = ["nombre", "telefono", "correo", "cargo"]
+        writer = csv.DictWriter(f, fieldnames=campos)
+        writer.writeheader()
+        writer.writerows(contactos)
+
+# Registrar nuevo contacto
+def registrar_contacto(contactos):
+    nombre = input("Nombre completo: ")
+    telefono = input("Teléfono: ")
+    correo = input("Correo electrónico: ")
+    cargo = input("Cargo: ")
+
+    # Verificar que no se repita el correo
+    for c in contactos:
+        if c["correo"] == correo:
+            print("Ya existe un contacto con ese correo.")
+            return
+
+    contactos.append({"nombre": nombre, "telefono": telefono, "correo": correo, "cargo": cargo})
+    guardar_contactos(contactos)
+    print("Contacto registrado con éxito.")
+
+# Buscar contacto
+def buscar_contacto(contactos):
+    termino = input("Ingrese nombre o correo a buscar: ").lower()
+    encontrados = [c for c in contactos if termino in c["nombre"].lower() or termino in c["correo"].lower()]
+    if encontrados:
+        print("\n--- Contactos encontrados ---")
+        for c in encontrados:
+            print(f"Nombre: {c['nombre']} | Teléfono: {c['telefono']} | Correo: {c['correo']} | Cargo: {c['cargo']}")
+    else:
+        print("No se encontró ningún contacto con ese dato.")
+
+# Listar todos los contactos
+def listar_contactos(contactos):
+    if not contactos:
+        print("No hay contactos registrados.")
+    else:
+        print("\n--- Lista de contactos ---")
+        for c in contactos:
+            print(f"{c['nombre']} - {c['telefono']} - {c['correo']} - {c['cargo']}")
+
+# Eliminar contacto
+def eliminar_contacto(contactos):
+    correo = input("Ingrese el correo del contacto a eliminar: ")
+    for c in contactos:
+        if c["correo"] == correo:
+            contactos.remove(c)
+            guardar_contactos(contactos)
+            print("🗑️ Contacto eliminado correctamente.")
+            return
+    print("No se encontró un contacto con ese correo.")
+
+# Menú principal
+def menu():
+    contactos = cargar_contactos()
+    while True:
+        print("\n=== MENÚ PRINCIPAL ===")
+        print("1. Registrar nuevo contacto")
+        print("2. Buscar contacto")
+        print("3. Listar contactos")
+        print("4. Eliminar contacto")
+        print("5. Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            registrar_contacto(contactos)
+        elif opcion == "2":
+            buscar_contacto(contactos)
+        elif opcion == "3":
+            listar_contactos(contactos)
+        elif opcion == "4":
+            eliminar_contacto(contactos)
+        elif opcion == "5":
+            print("Saliendo del programa...")
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+if __name__ == "__main__":
+    menu()
